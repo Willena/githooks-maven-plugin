@@ -20,8 +20,6 @@
                 <groupId>io.github.willena</groupId>
                 <artifactId>githooks-maven-plugin</artifactId>
                 <configuration>
-                    <hook>PRE_PUSH</hook>
-                    <skip>true</skip>
                     <skipRuns>
                         <run>other</run>
                     </skipRuns>

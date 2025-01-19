@@ -130,7 +130,6 @@ public class InstallHooksMojoTest extends AbstractMojoTestCase {
 
     }
 
-
     protected MavenProject readMavenProject(Path pom)
             throws Exception {
         MavenExecutionRequest request = new DefaultMavenExecutionRequest();

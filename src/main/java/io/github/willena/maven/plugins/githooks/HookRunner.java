@@ -13,12 +13,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
 
@@ -38,7 +37,7 @@ public class HookRunner {
     public void run() throws MojoExecutionException {
         List<HookDefinition> toRun = hooksToRun.stream()
                 .filter(HookDefinition::isEnabled)
-                .filter(h -> !config.skipRuns.contains(h.getName()))
+                .filter(h -> !config.getSkipRuns().contains(h.getName()))
                 .collect(Collectors.toList());
 
         log.debug(String.format("Runs: %s", toRun));
@@ -50,18 +49,24 @@ public class HookRunner {
     }
 
     public void run(RunConfig runConfig) throws MojoExecutionException {
+        if (Stream.of(runConfig.getCommand(), runConfig.getMojo(), runConfig.getClassName())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()).size() > 1) {
+            throw new IllegalArgumentException("Command, Mojo and ClassName are mutually exclusive");
+        }
+
         if (runConfig.getCommand() != null && !runConfig.getCommand().isEmpty()) {
-            this.runCommand(runConfig.getCommand(), runConfig.getArgs());
+            this.runCommand(runConfig);
         } else if (runConfig.getClassName() != null) {
             this.runClass(runConfig);
         } else if (runConfig.getMojo() != null) {
             this.runMojo(runConfig);
         } else {
-            throw new MojoExecutionException("Invalid run config !");
+            throw new IllegalArgumentException("Invalid run config: Must specify at least an action");
         }
     }
 
-    private void runMojo(RunConfig runConfig) throws MojoExecutionException {
+    protected void runMojo(RunConfig runConfig) throws MojoExecutionException {
         executeMojo(
                 runConfig.getMojo().getPlugin(),
                 runConfig.getMojo().getGoal(),
@@ -92,13 +97,21 @@ public class HookRunner {
         return result;
     }
 
-    private void runClass(RunConfig runConfig) throws MojoExecutionException {
+    private List<String> computeArgs(RunConfig runConfig) {
+        List<String> allArgs = new LinkedList<>(runConfig.getArgs());
+        List<String> otherArgs = Optional.ofNullable(config.getArgs()).orElse(Collections.emptyList());
+        allArgs.addAll(otherArgs);
+        return allArgs;
+    }
+
+    protected void runClass(RunConfig runConfig) throws MojoExecutionException {
         try {
             Class<?> classToRun = Class.forName(runConfig.getClassName());
             Method meth = classToRun.getMethod("main", String[].class);
-            List<String> allArgs = new LinkedList<>(runConfig.getArgs());
-            allArgs.addAll(config.getArgs());
-            meth.invoke(null, allArgs.toArray());
+
+            String[] args = computeArgs(runConfig).toArray(new String[0]);
+
+            meth.invoke(null, new Object[]{args});
         } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             throw new MojoExecutionException("Could not launch main method of " + runConfig.getClassName(), e);
         } catch (Exception e) {
@@ -106,13 +119,12 @@ public class HookRunner {
         }
     }
 
-    private void runCommand(List<String> command, List<String> args) throws MojoExecutionException {
-        List<String> allArgs = new LinkedList<>(command);
-        allArgs.addAll(args);
-        allArgs.addAll(config.getArgs());
+    protected void runCommand(RunConfig runConfig) throws MojoExecutionException {
+        List<String> allArgs = new LinkedList<>(runConfig.getCommand());
+        allArgs.addAll(computeArgs(runConfig));
 
         try {
-            log.info("Executing hook command `" + command + "` ");
+            log.info("Executing hook command `" + runConfig.getCommand() + "` ");
             Process process = Runtime.getRuntime().exec(allArgs.toArray(new String[0]));
             executor.submit(() -> new BufferedReader(
                     new InputStreamReader(process.getInputStream())).lines().forEach(log::info));
@@ -121,8 +133,8 @@ public class HookRunner {
             log.info("Exit code is " + exitCode);
             log.info(" The command was finished with the status" + (exitCode == 0 ? "SUCCESS" : "ERROR"));
         } catch (InterruptedException e) {
-            log.error("Could not run command: " + allArgs);
             Thread.currentThread().interrupt();
+            throw new MojoExecutionException("Could not run command: " + allArgs, e);
         } catch (IOException e) {
             throw new MojoExecutionException("Could not run command: " + allArgs, e);
         }

@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Mojo(name = "run")
 public class RunHooksMojo extends AbstractMojo {
 
-    @Parameter(name = "hook")
+    @Parameter(name = "hook", required = true)
     protected HookType hook;
 
     @Parameter(name = "args")
@@ -29,7 +29,7 @@ public class RunHooksMojo extends AbstractMojo {
     @Parameter(name = "skipRuns")
     protected List<String> skipRuns;
 
-    @Parameter(name = "hooks")
+    @Parameter(name = "hooks", required = true)
     protected List<Hook> hooks;
 
     @Parameter(name = "skip")
@@ -51,7 +51,13 @@ public class RunHooksMojo extends AbstractMojo {
             return;
         }
 
-        Map<HookType, List<HookDefinition>> hooksByType = hooks.stream().map(e -> Map.entry(e.getType(), e.getHookDefinitions())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        if (hook == null) {
+            throw new MojoExecutionException("Please specify a hook name");
+        }
+
+        Map<HookType, List<HookDefinition>> hooksByType = hooks.stream()
+                .map(e -> Map.entry(e.getType(), e.getHookDefinitions()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         new HookRunner(hooksByType.getOrDefault(hook, Collections.emptyList()),
                 getLog(),
@@ -63,5 +69,25 @@ public class RunHooksMojo extends AbstractMojo {
                         .mavenSession(mavenSession)
                         .build())
                 .run();
+    }
+
+    public boolean isSkip() {
+        return skip;
+    }
+
+    public List<String> getArgs() {
+        return args;
+    }
+
+    public List<String> getSkipRuns() {
+        return skipRuns;
+    }
+
+    public HookType getHook() {
+        return hook;
+    }
+
+    public List<Hook> getHooks() {
+        return hooks;
     }
 }
