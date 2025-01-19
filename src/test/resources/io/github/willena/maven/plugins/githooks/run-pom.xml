@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.github.willena</groupId>
+    <artifactId>githooks-maven-plugin-example</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.github.willena</groupId>
+                <artifactId>githooks-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                    <gitConfig>
+                        <config.section.test>value</config.section.test>
+                    </gitConfig>
+                    <hookScriptTemplate>script</hookScriptTemplate>
+                    <hooks>
+                        <hook>
+                            <type>PRE_PUSH</type>
+                            <hookDefinitions>
+                                <hookDefinition>
+                                    <name>mojo</name>
+                                    <runConfig>
+                                        <mojo>
+                                            <goal>system</goal>
+                                            <plugin>
+                                                <groupId>org.apache.maven</groupId>
+                                                <artifactId>maven-help-plugin</artifactId>
+                                                <version>3.5.1</version>
+                                            </plugin>
+                                        </mojo>
+                                    </runConfig>
+                                </hookDefinition>
+                                <hookDefinition>
+                                    <name>name</name>
+                                    <description>This is a simple hook</description>
+                                    <runConfig>
+                                        <command>
+                                            <part>echo</part>
+                                            <part>toto</part>
+                                        </command>
+                                    </runConfig>
+                                </hookDefinition>
+                                <hookDefinition>
+                                    <name>other</name>
+                                    <runConfig>
+                                        <className>io.github.willena.maven.plugins.githooks.demoMain</className>
+                                        <args>
+                                            <arg>--arg1</arg>
+                                            <arg>--value</arg>
+                                        </args>
+                                    </runConfig>
+                                </hookDefinition>
+                            </hookDefinitions>
+                        </hook>
+                    </hooks>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install-exec</id>
+                        <goals>
+                            <goal>install</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
