@@ -16,14 +16,6 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Config;
-import org.eclipse.jgit.lib.ConfigConstants;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.StoredConfig;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,6 +23,13 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.lib.ConfigConstants;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 public final class GitUtils {
     public static boolean isValidGitRepository(Path repositoryPath) {
@@ -51,15 +50,17 @@ public final class GitUtils {
         try (Git git = Git.open(getRepositoryPath(repositoryPath.toFile()))) {
             StoredConfig config = git.getRepository().getConfig();
 
-            Optional.ofNullable(customConfig)
-                    .orElse(Collections.emptyMap())
-                    .entrySet()
-                    .stream()
+            Optional.ofNullable(customConfig).orElse(Collections.emptyMap()).entrySet().stream()
                     .map(e -> Map.entry(GitConfigKey.parse(e.getKey()), e.getValue()))
-                    .forEach(configEntry -> {
-                        GitConfigKey configKey = configEntry.getKey();
-                        config.setString(configKey.getSection(), configKey.getSubSection(), configKey.getName(), configEntry.getValue());
-                    });
+                    .forEach(
+                            configEntry -> {
+                                GitConfigKey configKey = configEntry.getKey();
+                                config.setString(
+                                        configKey.getSection(),
+                                        configKey.getSubSection(),
+                                        configKey.getName(),
+                                        configEntry.getValue());
+                            });
 
             config.save();
 
@@ -83,8 +84,11 @@ public final class GitUtils {
         try (Git git = Git.open(getRepositoryPath(repositoryPath.toFile()))) {
             Config config = git.getRepository().getConfig();
 
-            String hooksDir = config.getString(ConfigConstants.CONFIG_CORE_SECTION,
-                    null, ConfigConstants.CONFIG_KEY_HOOKS_PATH);
+            String hooksDir =
+                    config.getString(
+                            ConfigConstants.CONFIG_CORE_SECTION,
+                            null,
+                            ConfigConstants.CONFIG_KEY_HOOKS_PATH);
             if (hooksDir != null) {
                 return Path.of(hooksDir);
             }
@@ -97,5 +101,4 @@ public final class GitUtils {
             throw new IllegalStateException("Could not update git configuration", e);
         }
     }
-
 }

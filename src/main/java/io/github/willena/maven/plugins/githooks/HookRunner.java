@@ -16,13 +16,7 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.BuildPluginManager;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.configuration.PlexusConfiguration;
-import org.codehaus.plexus.util.xml.Xpp3Dom;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,8 +28,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.BuildPluginManager;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.configuration.PlexusConfiguration;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 public class HookRunner {
     private final List<HookDefinition> hooksToRun;
@@ -51,10 +50,11 @@ public class HookRunner {
     }
 
     public void run() throws MojoExecutionException {
-        List<HookDefinition> toRun = hooksToRun.stream()
-                .filter(HookDefinition::isEnabled)
-                .filter(h -> !config.getSkipRuns().contains(h.getName()))
-                .collect(Collectors.toList());
+        List<HookDefinition> toRun =
+                hooksToRun.stream()
+                        .filter(HookDefinition::isEnabled)
+                        .filter(h -> !config.getSkipRuns().contains(h.getName()))
+                        .collect(Collectors.toList());
 
         log.debug(String.format("Runs: %s", toRun));
 
@@ -66,9 +66,12 @@ public class HookRunner {
 
     public void run(RunConfig runConfig) throws MojoExecutionException {
         if (Stream.of(runConfig.getCommand(), runConfig.getMojo(), runConfig.getClassName())
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList()).size() > 1) {
-            throw new IllegalArgumentException("Command, Mojo and ClassName are mutually exclusive");
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList())
+                        .size()
+                > 1) {
+            throw new IllegalArgumentException(
+                    "Command, Mojo and ClassName are mutually exclusive");
         }
 
         if (runConfig.getCommand() != null && !runConfig.getCommand().isEmpty()) {
@@ -78,7 +81,8 @@ public class HookRunner {
         } else if (runConfig.getMojo() != null) {
             this.runMojo(runConfig);
         } else {
-            throw new IllegalArgumentException("Invalid run config: Must specify at least an action");
+            throw new IllegalArgumentException(
+                    "Invalid run config: Must specify at least an action");
         }
     }
 
@@ -86,13 +90,13 @@ public class HookRunner {
         executeMojo(
                 runConfig.getMojo().getPlugin(),
                 runConfig.getMojo().getGoal(),
-                Optional.ofNullable(runConfig.getMojo().getConfiguration()).map(HookRunner::toXpp3Dom).orElse(configuration()),
+                Optional.ofNullable(runConfig.getMojo().getConfiguration())
+                        .map(HookRunner::toXpp3Dom)
+                        .orElse(configuration()),
                 executionEnvironment(
                         config.getMavenProject(),
                         config.getMavenSession(),
-                        config.getPluginManager()
-                )
-        );
+                        config.getPluginManager()));
     }
 
     /**
@@ -115,7 +119,8 @@ public class HookRunner {
 
     private List<String> computeArgs(RunConfig runConfig) {
         List<String> allArgs = new LinkedList<>(runConfig.getArgs());
-        List<String> otherArgs = Optional.ofNullable(config.getArgs()).orElse(Collections.emptyList());
+        List<String> otherArgs =
+                Optional.ofNullable(config.getArgs()).orElse(Collections.emptyList());
         allArgs.addAll(otherArgs);
         return allArgs;
     }
@@ -127,9 +132,10 @@ public class HookRunner {
 
             String[] args = computeArgs(runConfig).toArray(new String[0]);
 
-            meth.invoke(null, new Object[]{args});
+            meth.invoke(null, new Object[] {args});
         } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-            throw new MojoExecutionException("Could not launch main method of " + runConfig.getClassName(), e);
+            throw new MojoExecutionException(
+                    "Could not launch main method of " + runConfig.getClassName(), e);
         } catch (Exception e) {
             throw new MojoExecutionException("Error while running hook", e);
         }
@@ -142,21 +148,24 @@ public class HookRunner {
         try {
             log.info("Executing hook command `" + runConfig.getCommand() + "` ");
             Process process = Runtime.getRuntime().exec(allArgs.toArray(new String[0]));
-            executor.submit(() -> new BufferedReader(
-                    new InputStreamReader(process.getInputStream())).lines().forEach(log::info));
+            executor.submit(
+                    () ->
+                            new BufferedReader(new InputStreamReader(process.getInputStream()))
+                                    .lines()
+                                    .forEach(log::info));
 
             int exitCode = process.waitFor();
             log.info("Exit code is " + exitCode);
-            log.info(" The command was finished with the status" + (exitCode == 0 ? "SUCCESS" : "ERROR"));
+            log.info(
+                    " The command was finished with the status"
+                            + (exitCode == 0 ? "SUCCESS" : "ERROR"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new MojoExecutionException("Could not run command: " + allArgs, e);
         } catch (IOException e) {
             throw new MojoExecutionException("Could not run command: " + allArgs, e);
         }
-
     }
-
 
     public static class HookRunnerConfig {
         private final List<String> args;
@@ -164,7 +173,6 @@ public class HookRunner {
         private final MavenProject mavenProject;
         private final MavenSession mavenSession;
         private final BuildPluginManager pluginManager;
-
 
         private HookRunnerConfig(Builder builder) {
             args = builder.args;
@@ -201,8 +209,7 @@ public class HookRunner {
             private MavenSession mavenSession;
             private BuildPluginManager pluginManager;
 
-            public Builder() {
-            }
+            public Builder() {}
 
             public Builder args(List<String> val) {
                 args = val;
@@ -213,7 +220,6 @@ public class HookRunner {
                 skipRuns = val;
                 return this;
             }
-
 
             public Builder mavenProject(MavenProject project) {
                 this.mavenProject = project;

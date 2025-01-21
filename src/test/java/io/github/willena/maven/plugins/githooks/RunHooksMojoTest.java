@@ -16,6 +16,14 @@
 
 package io.github.willena.maven.plugins.githooks;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -27,15 +35,6 @@ import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 public class RunHooksMojoTest extends AbstractMojoTestCase {
 
     public void testMojoConfigPopulated() throws Exception {
@@ -46,24 +45,28 @@ public class RunHooksMojoTest extends AbstractMojoTestCase {
         RunHooksMojo mojo = (RunHooksMojo) lookupConfiguredMojo(project, "run");
         assertNotNull(mojo);
 
-        List<Hook> hooks = List.of(
-                new Hook()
-                        .setType(HookType.PRE_PUSH)
-                        .setHookDefinitions(List.of(
-                                        new HookDefinition()
-                                                .setName("mojo")
-                                                .setRunConfig(new RunConfig()
-                                                        .setArgs(List.of("--v1"))
-                                                        .setClassName(DemoMain.class.getName())),
-                                        new HookDefinition()
-                                                .setName("other")
-                                                .setRunConfig(new RunConfig()
-                                                        .setArgs(List.of("--v2"))
-                                                        .setClassName(DemoMain.class.getName()))
-                                )
-                        )
-        );
-
+        List<Hook> hooks =
+                List.of(
+                        new Hook()
+                                .setType(HookType.PRE_PUSH)
+                                .setHookDefinitions(
+                                        List.of(
+                                                new HookDefinition()
+                                                        .setName("mojo")
+                                                        .setRunConfig(
+                                                                new RunConfig()
+                                                                        .setArgs(List.of("--v1"))
+                                                                        .setClassName(
+                                                                                DemoMain.class
+                                                                                        .getName())),
+                                                new HookDefinition()
+                                                        .setName("other")
+                                                        .setRunConfig(
+                                                                new RunConfig()
+                                                                        .setArgs(List.of("--v2"))
+                                                                        .setClassName(
+                                                                                DemoMain.class
+                                                                                        .getName())))));
 
         assertEquals(hooks, mojo.getHooks());
         assertTrue(mojo.isSkip());
@@ -83,7 +86,6 @@ public class RunHooksMojoTest extends AbstractMojoTestCase {
         DemoMain.receivedArgs = null;
         assertDoesNotThrow(mojo::execute);
         assertNull(DemoMain.receivedArgs);
-
     }
 
     public void testNoHookExecution() throws Exception {
@@ -97,7 +99,6 @@ public class RunHooksMojoTest extends AbstractMojoTestCase {
         assertThrows(MojoExecutionException.class, mojo::execute);
     }
 
-
     public void testExecution() throws Exception {
         Path pom = Path.of(getClass().getResource("run-execute-pom.xml").toURI());
         Path newProjectPom = createNewProject(pom).resolve("pom.xml");
@@ -110,7 +111,6 @@ public class RunHooksMojoTest extends AbstractMojoTestCase {
         assertDoesNotThrow(mojo::execute);
 
         assertEquals(List.of("--v1", "toto"), Arrays.asList(DemoMain.receivedArgs));
-
     }
 
     protected Path createNewProject(Path pomToTest) throws IOException, GitAPIException {
@@ -120,17 +120,15 @@ public class RunHooksMojoTest extends AbstractMojoTestCase {
         Files.copy(pomToTest, newProjectDir.resolve("pom.xml"));
 
         return newProjectDir;
-
     }
 
-
-    protected MavenProject readMavenProject(Path pom)
-            throws Exception {
+    protected MavenProject readMavenProject(Path pom) throws Exception {
         MavenExecutionRequest request = new DefaultMavenExecutionRequest();
         request.setBaseDirectory(pom.getParent().toFile());
         ProjectBuildingRequest configuration = request.getProjectBuildingRequest();
         configuration.setRepositorySession(new DefaultRepositorySystemSession());
-        MavenProject project = lookup(ProjectBuilder.class).build(pom.toFile(), configuration).getProject();
+        MavenProject project =
+                lookup(ProjectBuilder.class).build(pom.toFile(), configuration).getProject();
         assertNotNull(project);
         return project;
     }

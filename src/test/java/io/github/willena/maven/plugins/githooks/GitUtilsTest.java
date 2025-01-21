@@ -16,18 +16,17 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.ConfigConstants;
-import org.eclipse.jgit.lib.StoredConfig;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.ConfigConstants;
+import org.eclipse.jgit.lib.StoredConfig;
+import org.junit.jupiter.api.Test;
 
 class GitUtilsTest {
 
@@ -51,9 +50,7 @@ class GitUtilsTest {
     void writeGitConfig() throws IOException, GitAPIException {
         Path newRepo = Files.createTempDirectory(TARGET, "");
         try (Git ignored = Git.init().setDirectory(newRepo.toFile()).call()) {
-            GitUtils.writeGitConfig(newRepo, Map.ofEntries(
-                    Map.entry("demo.key", "value")
-            ));
+            GitUtils.writeGitConfig(newRepo, Map.ofEntries(Map.entry("demo.key", "value")));
         }
 
         try (Git git = Git.open(newRepo.toFile())) {
@@ -65,16 +62,24 @@ class GitUtilsTest {
     void getHooksPath() throws IOException, GitAPIException {
         Path newRepo = Files.createTempDirectory(TARGET, "");
         try (Git ignored = Git.init().setDirectory(newRepo.toFile()).call()) {
-            assertEquals(newRepo.resolve(".git\\hooks").toAbsolutePath(), GitUtils.getHooksPath(newRepo));
+            assertEquals(
+                    newRepo.resolve(".git\\hooks").toAbsolutePath(),
+                    GitUtils.getHooksPath(newRepo));
         }
 
         try (Git git = Git.open(newRepo.toFile())) {
             StoredConfig cfg = git.getRepository().getConfig();
-            cfg.setString(ConfigConstants.CONFIG_CORE_SECTION, null, ConfigConstants.CONFIG_KEY_HOOKS_PATH, "something");
+            cfg.setString(
+                    ConfigConstants.CONFIG_CORE_SECTION,
+                    null,
+                    ConfigConstants.CONFIG_KEY_HOOKS_PATH,
+                    "something");
             cfg.save();
-            String hooksDir = cfg.getString(ConfigConstants.CONFIG_CORE_SECTION,
-                    null, ConfigConstants.CONFIG_KEY_HOOKS_PATH);
-
+            String hooksDir =
+                    cfg.getString(
+                            ConfigConstants.CONFIG_CORE_SECTION,
+                            null,
+                            ConfigConstants.CONFIG_KEY_HOOKS_PATH);
         }
 
         try (Git git = Git.open(newRepo.toFile())) {

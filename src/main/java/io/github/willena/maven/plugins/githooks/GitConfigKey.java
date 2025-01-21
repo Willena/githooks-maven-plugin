@@ -34,7 +34,6 @@ public class GitConfigKey {
         this.name = name;
     }
 
-
     public String getSection() {
         return section;
     }
@@ -51,7 +50,9 @@ public class GitConfigKey {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         GitConfigKey that = (GitConfigKey) o;
-        return Objects.equals(section, that.section) && Objects.equals(subSection, that.subSection) && Objects.equals(name, that.name);
+        return Objects.equals(section, that.section)
+                && Objects.equals(subSection, that.subSection)
+                && Objects.equals(name, that.name);
     }
 
     @Override
@@ -63,12 +64,14 @@ public class GitConfigKey {
         final String[] sections = SPLITTER.split(configKey);
 
         if (sections.length > REQUIRED_SECTIONS || sections.length < 2) {
-            throw new IllegalArgumentException("Git configuration key '" + configKey + "' must include 1-2 sections separated by dots. ");
+            throw new IllegalArgumentException(
+                    "Git configuration key '"
+                            + configKey
+                            + "' must include 1-2 sections separated by dots. ");
         }
         return new GitConfigKey(
                 sections[0],
                 sections.length == REQUIRED_SECTIONS ? sections[1] : null,
-                sections[sections.length - 1]
-        );
+                sections[sections.length - 1]);
     }
 }

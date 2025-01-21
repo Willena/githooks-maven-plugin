@@ -26,7 +26,7 @@ public class RunConfig {
     private Mojo mojo;
 
     public String getClassName() {
-       return className;
+        return className;
     }
 
     public List<String> getCommand() {
@@ -63,19 +63,27 @@ public class RunConfig {
 
     @Override
     public String toString() {
-        return "RunConfig{" +
-                "className='" + className + '\'' +
-                ", command=" + command +
-                ", args=" + args +
-                ", mojo=" + mojo +
-                '}';
+        return "RunConfig{"
+                + "className='"
+                + className
+                + '\''
+                + ", command="
+                + command
+                + ", args="
+                + args
+                + ", mojo="
+                + mojo
+                + '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         RunConfig runConfig = (RunConfig) o;
-        return Objects.equals(className, runConfig.className) && Objects.equals(command, runConfig.command) && Objects.equals(args, runConfig.args) && Objects.equals(mojo, runConfig.mojo);
+        return Objects.equals(className, runConfig.className)
+                && Objects.equals(command, runConfig.command)
+                && Objects.equals(args, runConfig.args)
+                && Objects.equals(mojo, runConfig.mojo);
     }
 
     @Override

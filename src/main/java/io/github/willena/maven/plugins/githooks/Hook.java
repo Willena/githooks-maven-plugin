@@ -16,16 +16,13 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-import org.apache.maven.plugins.annotations.Parameter;
-
 import java.util.List;
 import java.util.Objects;
+import org.apache.maven.plugins.annotations.Parameter;
 
 public class Hook {
-    @Parameter
-    private HookType type;
-    @Parameter
-    private List<HookDefinition> hookDefinitions;
+    @Parameter private HookType type;
+    @Parameter private List<HookDefinition> hookDefinitions;
 
     public HookType getType() {
         return type;
@@ -47,10 +44,7 @@ public class Hook {
 
     @Override
     public String toString() {
-        return "Hook{" +
-                "type=" + type +
-                ", hookDefinitions=" + hookDefinitions +
-                '}';
+        return "Hook{" + "type=" + type + ", hookDefinitions=" + hookDefinitions + '}';
     }
 
     @Override

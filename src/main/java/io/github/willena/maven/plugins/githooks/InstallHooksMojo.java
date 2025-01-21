@@ -16,20 +16,19 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
+import static io.github.willena.maven.plugins.githooks.HookType.ALL_HOOKS_FILENAMES;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-
-import static io.github.willena.maven.plugins.githooks.HookType.ALL_HOOKS_FILENAMES;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 
 @Mojo(name = "install", defaultPhase = LifecyclePhase.VALIDATE)
 public class InstallHooksMojo extends AbstractMojo {
@@ -80,10 +79,14 @@ public class InstallHooksMojo extends AbstractMojo {
             Path hooksPaths = GitUtils.getHooksPath(currentProjectPath);
 
             getLog().info(String.format("Cleaning existing hooks from %s", currentProjectPath));
-            ALL_HOOKS_FILENAMES.stream().map(n -> Path.of(currentProjectPath.toString(), n)).map(Path::toFile).forEach(File::delete);
+            ALL_HOOKS_FILENAMES.stream()
+                    .map(n -> Path.of(currentProjectPath.toString(), n))
+                    .map(Path::toFile)
+                    .forEach(File::delete);
 
             getLog().info(String.format("Installing hooks into %s", hooksPaths));
-            HookScriptWriter hookWriter = new HookScriptWriter(hookScriptTemplate, mavenHome, javaHome);
+            HookScriptWriter hookWriter =
+                    new HookScriptWriter(hookScriptTemplate, mavenHome, javaHome);
 
             for (Hook hook : hooks) {
                 getLog().debug(String.format("Installing %s", hook.getType().getFileName()));
@@ -97,7 +100,8 @@ public class InstallHooksMojo extends AbstractMojo {
 
     protected void applyGitConfiguration(Path currentProjectPath) throws MojoExecutionException {
         if (!GitUtils.isValidGitRepository(currentProjectPath)) {
-            throw new MojoExecutionException("This project is not in a valid git repository ! Consider creating one or disable the plugin");
+            throw new MojoExecutionException(
+                    "This project is not in a valid git repository ! Consider creating one or disable the plugin");
         }
 
         getLog().info("Will apply git configuration to repository");

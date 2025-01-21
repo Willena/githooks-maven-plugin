@@ -16,19 +16,15 @@
 
 package io.github.willena.maven.plugins.githooks;
 
+import java.util.Objects;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
-import java.util.Objects;
-
 public class Mojo {
-    @Parameter
-    private Plugin plugin;
-    @Parameter
-    private String goal;
-    @Parameter
-    private PlexusConfiguration configuration;
+    @Parameter private Plugin plugin;
+    @Parameter private String goal;
+    @Parameter private PlexusConfiguration configuration;
 
     public Plugin getPlugin() {
         return plugin;
@@ -59,18 +55,24 @@ public class Mojo {
 
     @Override
     public String toString() {
-        return "Mojo{" +
-                "plugin=" + plugin +
-                ", goal='" + goal + '\'' +
-                ", configuration=" + configuration +
-                '}';
+        return "Mojo{"
+                + "plugin="
+                + plugin
+                + ", goal='"
+                + goal
+                + '\''
+                + ", configuration="
+                + configuration
+                + '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Mojo mojo = (Mojo) o;
-        return Objects.equals(plugin, mojo.plugin) && Objects.equals(goal, mojo.goal) && Objects.equals(configuration, mojo.configuration);
+        return Objects.equals(plugin, mojo.plugin)
+                && Objects.equals(goal, mojo.goal)
+                && Objects.equals(configuration, mojo.configuration);
     }
 
     @Override

@@ -16,9 +16,9 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
 
 class GitConfigKeyTest {
 
@@ -26,17 +26,18 @@ class GitConfigKeyTest {
     void parse() {
         assertThrows(IllegalArgumentException.class, () -> GitConfigKey.parse(""));
         assertThrows(IllegalArgumentException.class, () -> GitConfigKey.parse("name"));
-        assertThrows(IllegalArgumentException.class, () -> GitConfigKey.parse("name.other.ooo.uuu"));
+        assertThrows(
+                IllegalArgumentException.class, () -> GitConfigKey.parse("name.other.ooo.uuu"));
 
         GitConfigKey simple = assertDoesNotThrow(() -> GitConfigKey.parse("section.key"));
         assertEquals("section", simple.getSection());
         assertEquals("key", simple.getName());
 
-        GitConfigKey subsect = assertDoesNotThrow(() -> GitConfigKey.parse("section.subsection.name"));
+        GitConfigKey subsect =
+                assertDoesNotThrow(() -> GitConfigKey.parse("section.subsection.name"));
         assertEquals("section", subsect.getSection());
         assertEquals("subsection", subsect.getSubSection());
         assertEquals("name", subsect.getName());
-
 
         GitConfigKey simple2 = assertDoesNotThrow(() -> GitConfigKey.parse("section.key"));
     }
@@ -62,6 +63,5 @@ class GitConfigKeyTest {
 
         assertEquals(simple2.hashCode(), simple1.hashCode());
         assertNotEquals(simple2.hashCode(), simple3.hashCode());
-
     }
 }
