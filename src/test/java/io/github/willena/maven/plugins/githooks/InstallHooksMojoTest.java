@@ -135,10 +135,9 @@ public class InstallHooksMojoTest extends AbstractMojoTestCase {
         Path hooksPath = GitUtils.getHooksPath(newProjectDir);
 
         List<Path> allHooksFile = Files.list(hooksPath).toList();
+        Path preCommitFile = hooksPath.resolve(HookType.PRE_COMMIT.getFileName());
         assertEquals(
-                Stream.of(
-                                hooksPath.resolve(HookType.PRE_COMMIT.getFileName()),
-                                hooksPath.resolve(HookType.PRE_PUSH.getFileName()))
+                Stream.of(preCommitFile, hooksPath.resolve(HookType.PRE_PUSH.getFileName()))
                         .sorted()
                         .toList(),
                 allHooksFile.stream().sorted().toList());
@@ -148,7 +147,7 @@ public class InstallHooksMojoTest extends AbstractMojoTestCase {
                         + "args=$(IFS=, ; echo \"$*\");\n"
                         + "export PATH=${javaHome}:${mavenHome}:$PATH;\n"
                         + "mvn githooks:run \"-Dhook=PRE_COMMIT\" \"-Dhook.args=${args}\";",
-                Files.readString(allHooksFile.get(0)));
+                Files.readString(preCommitFile));
     }
 
     protected Path createNewProject(Path pomToTest) throws IOException, GitAPIException {
