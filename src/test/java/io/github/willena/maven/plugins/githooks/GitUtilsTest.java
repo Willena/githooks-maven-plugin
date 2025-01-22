@@ -16,17 +16,18 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Map;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class GitUtilsTest {
 
@@ -63,7 +64,7 @@ class GitUtilsTest {
         Path newRepo = Files.createTempDirectory(TARGET, "");
         try (Git ignored = Git.init().setDirectory(newRepo.toFile()).call()) {
             assertEquals(
-                    newRepo.resolve(".git\\hooks").toAbsolutePath(),
+                    newRepo.resolve(".git").resolve("hooks").toAbsolutePath(),
                     GitUtils.getHooksPath(newRepo));
         }
 

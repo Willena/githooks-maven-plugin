@@ -23,7 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.model.Plugin;
@@ -134,12 +134,14 @@ public class InstallHooksMojoTest extends AbstractMojoTestCase {
 
         Path hooksPath = GitUtils.getHooksPath(newProjectDir);
 
-        List<Path> allHooksFile = Files.list(hooksPath).collect(Collectors.toList());
+        List<Path> allHooksFile = Files.list(hooksPath).toList();
         assertEquals(
-                List.of(
-                        hooksPath.resolve(HookType.PRE_COMMIT.getFileName()),
-                        hooksPath.resolve(HookType.PRE_PUSH.getFileName())),
-                allHooksFile);
+                Stream.of(
+                                hooksPath.resolve(HookType.PRE_COMMIT.getFileName()),
+                                hooksPath.resolve(HookType.PRE_PUSH.getFileName()))
+                        .sorted()
+                        .toList(),
+                allHooksFile.stream().sorted().toList());
 
         assertEquals(
                 "#!/bin/sh\n"
