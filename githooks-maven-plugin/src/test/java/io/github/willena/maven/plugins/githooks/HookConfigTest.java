@@ -16,19 +16,19 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+import java.util.Collections;
+import org.junit.jupiter.api.Test;
 
 public class HookConfigTest {
     @Test
     public void getterSetter() {
         HookConfig hookConfig =
-                new HookConfig().setType(HookType.PRE_PUSH).setHookDefinitions(Collections.emptyList());
+                new HookConfig()
+                        .setType(HookType.PRE_PUSH)
+                        .setHookDefinitions(Collections.emptyList());
 
         assertEquals(HookType.PRE_PUSH, hookConfig.getType());
         assertEquals(Collections.emptyList(), hookConfig.getHookDefinitions());
@@ -37,11 +37,17 @@ public class HookConfigTest {
     @Test
     public void hascodeTest() {
         HookConfig hookConfig =
-                new HookConfig().setType(HookType.PRE_PUSH).setHookDefinitions(Collections.emptyList());
+                new HookConfig()
+                        .setType(HookType.PRE_PUSH)
+                        .setHookDefinitions(Collections.emptyList());
         HookConfig hookConfig1 =
-                new HookConfig().setType(HookType.PRE_PUSH).setHookDefinitions(Collections.emptyList());
+                new HookConfig()
+                        .setType(HookType.PRE_PUSH)
+                        .setHookDefinitions(Collections.emptyList());
         HookConfig hookConfig2 =
-                new HookConfig().setType(HookType.PRE_PUSH).setHookDefinitions(Collections.emptyList());
+                new HookConfig()
+                        .setType(HookType.PRE_PUSH)
+                        .setHookDefinitions(Collections.emptyList());
         assertNotEquals(hookConfig2.hashCode(), hookConfig);
         assertEquals(hookConfig.hashCode(), hookConfig1.hashCode());
     }

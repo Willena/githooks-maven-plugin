@@ -16,5 +16,4 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-public class HookContext {
-}
+public class HookContext {}

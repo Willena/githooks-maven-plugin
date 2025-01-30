@@ -16,9 +16,8 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-import org.apache.maven.plugins.annotations.Parameter;
-
 import java.util.Objects;
+import org.apache.maven.plugins.annotations.Parameter;
 
 public class ConditionalRunConfig {
     @Parameter(name = "ref")
@@ -35,9 +34,7 @@ public class ConditionalRunConfig {
 
     @Override
     public String toString() {
-        return "ConditionalRun{" +
-                "ref='" + ref + '\'' +
-                '}';
+        return "ConditionalRun{" + "ref='" + ref + '\'' + '}';
     }
 
     @Override

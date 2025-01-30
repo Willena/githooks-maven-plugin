@@ -16,16 +16,20 @@
 
 package io.github.willena.maven.plugins.githooks;
 
+import java.util.Objects;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
-import java.util.Objects;
-
 public class MojoConfig {
-    @Parameter(name = "plugin") private Plugin plugin;
-    @Parameter(name = "goal") private String goal;
-    @Parameter(name = "configuration") private PlexusConfiguration configuration;
+    @Parameter(name = "plugin")
+    private Plugin plugin;
+
+    @Parameter(name = "goal")
+    private String goal;
+
+    @Parameter(name = "configuration")
+    private PlexusConfiguration configuration;
 
     public Plugin getPlugin() {
         return plugin;

@@ -16,10 +16,10 @@
 
 package io.github.willena.maven.plugins.githooks;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class GitConfigKeyTest {
 
@@ -30,7 +30,8 @@ class GitConfigKeyTest {
         assertThrows(
                 IllegalArgumentException.class, () -> GitConfigKey.parse("name.other.ooo.uuu"));
 
-        GitConfigKey simple = Assertions.assertDoesNotThrow(() -> GitConfigKey.parse("section.key"));
+        GitConfigKey simple =
+                Assertions.assertDoesNotThrow(() -> GitConfigKey.parse("section.key"));
         assertEquals("section", simple.getSection());
         assertEquals("key", simple.getName());
 
@@ -40,14 +41,18 @@ class GitConfigKeyTest {
         assertEquals("subsection", subsect.getSubSection());
         assertEquals("name", subsect.getName());
 
-        GitConfigKey simple2 = Assertions.assertDoesNotThrow(() -> GitConfigKey.parse("section.key"));
+        GitConfigKey simple2 =
+                Assertions.assertDoesNotThrow(() -> GitConfigKey.parse("section.key"));
     }
 
     @Test
     void equalsTest() {
-        GitConfigKey simple1 = Assertions.assertDoesNotThrow(() -> GitConfigKey.parse("section.key"));
-        GitConfigKey simple2 = Assertions.assertDoesNotThrow(() -> GitConfigKey.parse("section.key"));
-        GitConfigKey simple3 = Assertions.assertDoesNotThrow(() -> GitConfigKey.parse("section.name"));
+        GitConfigKey simple1 =
+                Assertions.assertDoesNotThrow(() -> GitConfigKey.parse("section.key"));
+        GitConfigKey simple2 =
+                Assertions.assertDoesNotThrow(() -> GitConfigKey.parse("section.key"));
+        GitConfigKey simple3 =
+                Assertions.assertDoesNotThrow(() -> GitConfigKey.parse("section.name"));
 
         assertTrue(simple1.equals(simple1));
         assertTrue(simple1.equals(simple2));
@@ -58,9 +63,12 @@ class GitConfigKeyTest {
 
     @Test
     void hashCodeTest() {
-        GitConfigKey simple1 = Assertions.assertDoesNotThrow(() -> GitConfigKey.parse("section.key"));
-        GitConfigKey simple2 = Assertions.assertDoesNotThrow(() -> GitConfigKey.parse("section.key"));
-        GitConfigKey simple3 = Assertions.assertDoesNotThrow(() -> GitConfigKey.parse("section.key1"));
+        GitConfigKey simple1 =
+                Assertions.assertDoesNotThrow(() -> GitConfigKey.parse("section.key"));
+        GitConfigKey simple2 =
+                Assertions.assertDoesNotThrow(() -> GitConfigKey.parse("section.key"));
+        GitConfigKey simple3 =
+                Assertions.assertDoesNotThrow(() -> GitConfigKey.parse("section.key1"));
 
         assertEquals(simple2.hashCode(), simple1.hashCode());
         assertNotEquals(simple2.hashCode(), simple3.hashCode());

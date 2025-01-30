@@ -16,11 +16,10 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import org.junit.jupiter.api.Test;
 
 class HookDefinitionConfigTest {
     @Test
@@ -32,7 +31,6 @@ class HookDefinitionConfigTest {
         def.setName("name");
         def.setOnlyIf(new ConditionalRunConfig());
         def.setSkipIf(new ConditionalRunConfig());
-
 
         assertEquals("name", def.getName());
         assertEquals("Desc", def.getDescription());

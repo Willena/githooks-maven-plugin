@@ -16,6 +16,14 @@
 
 package io.github.willena.maven.plugins.githooks;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.model.Plugin;
@@ -27,15 +35,6 @@ import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class InstallHooksMojoConfigTest extends AbstractMojoTestCase {
 

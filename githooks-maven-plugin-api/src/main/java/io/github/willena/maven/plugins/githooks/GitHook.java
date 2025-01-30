@@ -22,14 +22,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation used to discover Hooks.
- * Hooks libraries can be used in the "class" RunConfig.
- * To avoid using a FQDN class name or if the name of the class is not beautiful
- * enough you can specify it using the annotation
- * <p>
- * If attached on constructor or class, it expects an empty constructor
- * If attached on a static method with only string array as parameter (main method or equivalent) it will run the method
- * If attached on a class implementing {@link RunnableGitHook} it will try the {@link RunnableGitHook#run(HookContext, String[])} method
+ * Annotation used to discover Hooks. Hooks libraries can be used in the "class" RunConfig. To avoid
+ * using a FQDN class name or if the name of the class is not beautiful enough you can specify it
+ * using the annotation
+ *
+ * <p>If attached on constructor or class, it expects an empty constructor If attached on a static
+ * method with only string array as parameter (main method or equivalent) it will run the method If
+ * attached on a class implementing {@link RunnableGitHook} it will try the {@link
+ * RunnableGitHook#run(HookContext, String[])} method
  */
 @Retention(value = RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.TYPE, ElementType.CONSTRUCTOR, ElementType.METHOD})

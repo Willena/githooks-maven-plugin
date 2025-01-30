@@ -16,19 +16,18 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.ConfigConstants;
-import org.eclipse.jgit.lib.StoredConfig;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.regex.Pattern;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.ConfigConstants;
+import org.eclipse.jgit.lib.StoredConfig;
+import org.junit.jupiter.api.Test;
 
 class GitUtilsTest {
 
@@ -97,11 +96,10 @@ class GitUtilsTest {
             git.add().addFilepattern("*").call();
             git.commit().setMessage("msg").call();
             git.checkout().setCreateBranch(true).setName("newBranch").call();
-
-
         }
 
-        assertTrue(GitUtils.headMatchesRefPattern(newRepo, Pattern.compile("refs/heads/newBranch")));
+        assertTrue(
+                GitUtils.headMatchesRefPattern(newRepo, Pattern.compile("refs/heads/newBranch")));
         assertTrue(GitUtils.headMatchesRefPattern(newRepo, Pattern.compile("refs/heads/master")));
         assertTrue(GitUtils.headMatchesRefPattern(newRepo, Pattern.compile("newBranch")));
         assertTrue(GitUtils.headMatchesRefPattern(newRepo, Pattern.compile("refs/heads/.*")));
@@ -125,7 +123,8 @@ class GitUtilsTest {
         assertTrue(GitUtils.headMatchesRefPattern(newRepo, Pattern.compile("1\\.0\\.0")));
         assertTrue(GitUtils.headMatchesRefPattern(newRepo, Pattern.compile("refs/heads/master")));
         assertTrue(GitUtils.headMatchesRefPattern(newRepo, Pattern.compile("master")));
-        assertFalse(GitUtils.headMatchesRefPattern(newRepo, Pattern.compile("refs/heads/newBranch")));
+        assertFalse(
+                GitUtils.headMatchesRefPattern(newRepo, Pattern.compile("refs/heads/newBranch")));
         assertFalse(GitUtils.headMatchesRefPattern(newRepo, Pattern.compile("fss")));
     }
 }

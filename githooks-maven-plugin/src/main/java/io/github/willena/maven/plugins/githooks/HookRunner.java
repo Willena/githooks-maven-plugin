@@ -16,15 +16,6 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.BuildPluginManager;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.configuration.PlexusConfiguration;
-import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.twdata.maven.mojoexecutor.MojoExecutor;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -36,6 +27,14 @@ import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.BuildPluginManager;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.configuration.PlexusConfiguration;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.twdata.maven.mojoexecutor.MojoExecutor;
 
 public class HookRunner {
     private final List<HookDefinitionConfig> hooksToRun;
@@ -61,7 +60,6 @@ public class HookRunner {
         }
     }
 
-
     private boolean keepRun(HookDefinitionConfig h) {
         if (!h.isEnabled()) {
             return false;
@@ -72,11 +70,15 @@ public class HookRunner {
         }
 
         if (h.getSkipIf() != null && h.getSkipIf().getRef() != null) {
-            return !GitUtils.headMatchesRefPattern(config.getMavenProject().getBasedir().toPath(), Pattern.compile(h.getSkipIf().getRef()));
+            return !GitUtils.headMatchesRefPattern(
+                    config.getMavenProject().getBasedir().toPath(),
+                    Pattern.compile(h.getSkipIf().getRef()));
         }
 
         if (h.getOnlyIf() != null && h.getOnlyIf().getRef() != null) {
-            return GitUtils.headMatchesRefPattern(config.getMavenProject().getBasedir().toPath(), Pattern.compile(h.getOnlyIf().getRef()));
+            return GitUtils.headMatchesRefPattern(
+                    config.getMavenProject().getBasedir().toPath(),
+                    Pattern.compile(h.getOnlyIf().getRef()));
         }
 
         return true;
@@ -84,9 +86,9 @@ public class HookRunner {
 
     public void run(RunConfig runConfig) throws MojoExecutionException {
         if (Stream.of(runConfig.getCommand(), runConfig.getMojo(), runConfig.getClassName())
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList())
-                .size()
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList())
+                        .size()
                 > 1) {
             throw new IllegalArgumentException(
                     "Command, Mojo and ClassName are mutually exclusive");
@@ -150,7 +152,7 @@ public class HookRunner {
 
             String[] args = computeArgs(runConfig).toArray(new String[0]);
 
-            meth.invoke(null, new Object[]{args});
+            meth.invoke(null, new Object[] {args});
         } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             throw new MojoExecutionException(
                     "Could not launch main method of " + runConfig.getClassName(), e);
@@ -227,8 +229,7 @@ public class HookRunner {
             private MavenSession mavenSession;
             private BuildPluginManager pluginManager;
 
-            public Builder() {
-            }
+            public Builder() {}
 
             public Builder args(List<String> val) {
                 args = val;

@@ -16,20 +16,19 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
+import static io.github.willena.maven.plugins.githooks.HookType.ALL_HOOKS_FILENAMES;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-
-import static io.github.willena.maven.plugins.githooks.HookType.ALL_HOOKS_FILENAMES;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 
 @Mojo(name = "install", defaultPhase = LifecyclePhase.VALIDATE)
 public class InstallHooksMojo extends AbstractMojo {

@@ -16,12 +16,10 @@
 
 package io.github.willena.maven.plugins.githooks;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RunConfigTest {
     @Test

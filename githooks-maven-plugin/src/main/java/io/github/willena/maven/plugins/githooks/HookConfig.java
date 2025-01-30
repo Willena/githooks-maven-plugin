@@ -16,14 +16,16 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-import org.apache.maven.plugins.annotations.Parameter;
-
 import java.util.List;
 import java.util.Objects;
+import org.apache.maven.plugins.annotations.Parameter;
 
 public class HookConfig {
-    @Parameter(name = "type") private HookType type;
-    @Parameter(name = "hookDefinitions") private List<HookDefinitionConfig> hookDefinitionConfigs;
+    @Parameter(name = "type")
+    private HookType type;
+
+    @Parameter(name = "hookDefinitions")
+    private List<HookDefinitionConfig> hookDefinitionConfigs;
 
     public HookType getType() {
         return type;
@@ -52,7 +54,8 @@ public class HookConfig {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         HookConfig hookConfig = (HookConfig) o;
-        return type == hookConfig.type && Objects.equals(hookDefinitionConfigs, hookConfig.hookDefinitionConfigs);
+        return type == hookConfig.type
+                && Objects.equals(hookDefinitionConfigs, hookConfig.hookDefinitionConfigs);
     }
 
     @Override

@@ -16,10 +16,10 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
+import org.junit.jupiter.api.Test;
 
 class ConditionalRunConfigTest {
 
@@ -45,7 +45,5 @@ class ConditionalRunConfigTest {
 
         assertEquals(r3.hashCode(), r.hashCode());
         assertNotEquals(r3.hashCode(), r2.hashCode());
-
     }
-
 }

@@ -16,16 +16,22 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-import org.apache.maven.plugins.annotations.Parameter;
-
 import java.util.List;
 import java.util.Objects;
+import org.apache.maven.plugins.annotations.Parameter;
 
 public class RunConfig {
-    @Parameter(name = "className") private String className;
-    @Parameter(name = "command") private List<String> command;
-    @Parameter(name = "args") private List<String> args;
-    @Parameter(name = "mojo") private MojoConfig mojoConfig;
+    @Parameter(name = "className")
+    private String className;
+
+    @Parameter(name = "command")
+    private List<String> command;
+
+    @Parameter(name = "args")
+    private List<String> args;
+
+    @Parameter(name = "mojo")
+    private MojoConfig mojoConfig;
 
     public String getClassName() {
         return className;

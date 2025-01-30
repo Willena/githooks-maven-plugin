@@ -16,11 +16,6 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,6 +25,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 public final class GitUtils {
     public static boolean isValidGitRepository(Path repositoryPath) {
