@@ -57,19 +57,16 @@
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
-            <version>7.0.0.202409031743-r</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity-engine-core</artifactId>
-            <version>2.4</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.twdata.maven</groupId>
             <artifactId>mojo-executor</artifactId>
-            <version>2.4.0</version>
             <scope>compile</scope>
         </dependency>
 
