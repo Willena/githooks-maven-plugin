@@ -20,12 +20,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.BuildPluginManager;
@@ -42,11 +40,18 @@ public class HookRunner {
     private final HookRunnerConfig config;
     private final ExecutorService executor;
 
-    public HookRunner(List<HookDefinitionConfig> hooksToRun, Log log, HookRunnerConfig config) {
+    public HookRunner(List<HookDefinitionConfig> hooksToRun, Log log, HookRunnerConfig config)
+            throws IOException,
+                    InvocationTargetException,
+                    InstantiationException,
+                    IllegalAccessException {
         this.hooksToRun = hooksToRun;
         this.log = log;
         this.config = config;
         this.executor = Executors.newSingleThreadExecutor();
+        // TODO: Could not call this, because not performant. Need to improve and find a solution.
+        // this.hookClassRegistry = new RunnableHookRegistry();
+        // this.hookClassRegistry.findAllHooks();
     }
 
     public void run() throws MojoExecutionException {
@@ -87,7 +92,7 @@ public class HookRunner {
     public void run(RunConfig runConfig) throws MojoExecutionException {
         if (Stream.of(runConfig.getCommand(), runConfig.getMojo(), runConfig.getClassName())
                         .filter(Objects::nonNull)
-                        .collect(Collectors.toList())
+                        .toList()
                         .size()
                 > 1) {
             throw new IllegalArgumentException(
@@ -147,15 +152,25 @@ public class HookRunner {
 
     protected void runClass(RunConfig runConfig) throws MojoExecutionException {
         try {
-            Class<?> classToRun = Class.forName(runConfig.getClassName());
-            Method meth = classToRun.getMethod("main", String[].class);
 
+            // Get the hook
+            // TODO: Until the registry is able to automatically discover classes efficiently,
+            // disable registry lookup;
+            //  Replaced with manual lookup of a single class.
+
+            // RunnableGitHook hook = hookClassRegistry.get(runConfig.getClassName());
+            List<Map.Entry<String, RunnableGitHook>> hooks =
+                    RunnableHookRegistry.findHooksFromClass(runConfig.getClassName());
+            if (hooks.isEmpty()) {
+                throw new MojoExecutionException(
+                        "Could not find any code to run in provided class"
+                                + runConfig.getClassName());
+            }
+            RunnableGitHook hook = hooks.get(0).getValue();
+
+            // Run the hook
             String[] args = computeArgs(runConfig).toArray(new String[0]);
-
-            meth.invoke(null, new Object[] {args});
-        } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-            throw new MojoExecutionException(
-                    "Could not launch main method of " + runConfig.getClassName(), e);
+            hook.run(new HookContext(config.getMavenProject(), config.getMavenSession()), args);
         } catch (Exception e) {
             throw new MojoExecutionException("Error while running hook", e);
         }

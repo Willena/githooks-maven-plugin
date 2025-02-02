@@ -32,9 +32,9 @@ import java.lang.annotation.Target;
  * RunnableGitHook#run(HookContext, String[])} method
  */
 @Retention(value = RetentionPolicy.RUNTIME)
-@Target(value = {ElementType.TYPE, ElementType.CONSTRUCTOR, ElementType.METHOD})
+@Target(value = {ElementType.METHOD, ElementType.TYPE})
 public @interface GitHook {
     String description() default "";
 
-    String name() default "";
+    String name();
 }

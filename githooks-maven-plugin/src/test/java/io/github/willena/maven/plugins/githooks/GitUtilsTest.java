@@ -83,9 +83,11 @@ class GitUtilsTest {
                             ConfigConstants.CONFIG_KEY_HOOKS_PATH);
         }
 
+        Path something = Path.of("something");
         try (Git git = Git.open(newRepo.toFile())) {
-            assertEquals(Path.of("something"), GitUtils.getHooksPath(newRepo));
+            assertEquals(something, GitUtils.getHooksPath(newRepo));
         }
+        Files.deleteIfExists(something);
     }
 
     @Test

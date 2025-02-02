@@ -16,23 +16,20 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-import org.apache.maven.execution.MavenSession;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import org.apache.maven.project.MavenProject;
+import org.junit.jupiter.api.Test;
 
-public class HookContext {
-    MavenProject project;
-    MavenSession session;
+class HookContextTest {
 
-    public HookContext(MavenProject project, MavenSession session) {
-        this.project = project;
-        this.session = session;
-    }
+    @Test
+    void getterSetter() {
+        MavenProject project = new MavenProject();
 
-    public MavenProject getProject() {
-        return project;
-    }
-
-    public MavenSession getSession() {
-        return session;
+        HookContext ctx = new HookContext(project, null);
+        assertNull(ctx.getSession());
+        assertEquals(project, ctx.getProject());
     }
 }

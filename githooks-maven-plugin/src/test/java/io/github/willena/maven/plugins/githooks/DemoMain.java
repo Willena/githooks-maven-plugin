@@ -25,6 +25,7 @@ public class DemoMain {
 
     public static String[] receivedArgs;
 
+    @GitHook(name = "hook-special-name")
     public static void main(String[] args) {
         LOGGER.debug("Hello args = {}", (Object[]) args);
         DemoMain.receivedArgs = args;

@@ -18,6 +18,8 @@ package io.github.willena.maven.plugins.githooks;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -33,7 +35,11 @@ import org.junit.jupiter.api.Test;
 class HookConfigRunnerTest {
 
     @Test
-    void runOnlyOneEnabled() {
+    void runOnlyOneEnabled()
+            throws IOException,
+                    InvocationTargetException,
+                    InstantiationException,
+                    IllegalAccessException {
         DemoMain.receivedArgs = null;
         List<HookDefinitionConfig> definitions =
                 List.of(
@@ -49,14 +55,14 @@ class HookConfigRunnerTest {
                                 .setEnabled(false)
                                 .setRunConfig(
                                         new RunConfig()
-                                                .setClassName(DemoMain.class.getName())
+                                                .setClassName(DemoMain.class.getSimpleName())
                                                 .setArgs(List.of("B"))),
                         new HookDefinitionConfig()
                                 .setName("thrid")
                                 .setEnabled(true)
                                 .setRunConfig(
                                         new RunConfig()
-                                                .setClassName(DemoMain.class.getName())
+                                                .setClassName(DemoMain.class.getSimpleName())
                                                 .setArgs(List.of("C"))));
 
         HookRunner runner =
@@ -72,7 +78,11 @@ class HookConfigRunnerTest {
     }
 
     @Test
-    void runClass() {
+    void runClass()
+            throws IOException,
+                    InvocationTargetException,
+                    InstantiationException,
+                    IllegalAccessException {
         HookRunner runner =
                 new HookRunner(
                         List.of(),
@@ -88,7 +98,11 @@ class HookConfigRunnerTest {
     }
 
     @Test
-    void runClassFail() {
+    void runClassFail()
+            throws IOException,
+                    InvocationTargetException,
+                    InstantiationException,
+                    IllegalAccessException {
         HookRunner runner =
                 new HookRunner(
                         List.of(),
@@ -104,7 +118,11 @@ class HookConfigRunnerTest {
     }
 
     @Test
-    void runCommand() {
+    void runCommand()
+            throws IOException,
+                    InvocationTargetException,
+                    InstantiationException,
+                    IllegalAccessException {
         HookRunner runner =
                 new HookRunner(
                         List.of(),
@@ -120,7 +138,11 @@ class HookConfigRunnerTest {
     }
 
     @Test
-    void runMojo() {
+    void runMojo()
+            throws IOException,
+                    InvocationTargetException,
+                    InstantiationException,
+                    IllegalAccessException {
         HookRunner runner =
                 new HookRunner(
                         List.of(),
@@ -147,7 +169,11 @@ class HookConfigRunnerTest {
     }
 
     @Test
-    void runConfigInvalid() {
+    void runConfigInvalid()
+            throws IOException,
+                    InvocationTargetException,
+                    InstantiationException,
+                    IllegalAccessException {
         RunConfig config =
                 new RunConfig()
                         .setCommand(Collections.emptyList())

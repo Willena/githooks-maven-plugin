@@ -16,6 +16,8 @@
 
 package io.github.willena.maven.plugins.githooks;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -71,17 +73,24 @@ public class RunHooksMojo extends AbstractMojo {
                         .map(e -> Map.entry(e.getType(), e.getHookDefinitions()))
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        new HookRunner(
-                        hooksByType.getOrDefault(hook, Collections.emptyList()),
-                        getLog(),
-                        new HookRunner.HookRunnerConfig.Builder()
-                                .skipRuns(skipRuns)
-                                .args(args)
-                                .pluginManager(pluginManager)
-                                .mavenProject(mavenProject)
-                                .mavenSession(mavenSession)
-                                .build())
-                .run();
+        try {
+            new HookRunner(
+                            hooksByType.getOrDefault(hook, Collections.emptyList()),
+                            getLog(),
+                            new HookRunner.HookRunnerConfig.Builder()
+                                    .skipRuns(skipRuns)
+                                    .args(args)
+                                    .pluginManager(pluginManager)
+                                    .mavenProject(mavenProject)
+                                    .mavenSession(mavenSession)
+                                    .build())
+                    .run();
+        } catch (IOException
+                | InvocationTargetException
+                | InstantiationException
+                | IllegalAccessException e) {
+            throw new MojoExecutionException("Could not run hook", e);
+        }
     }
 
     public boolean isSkip() {
