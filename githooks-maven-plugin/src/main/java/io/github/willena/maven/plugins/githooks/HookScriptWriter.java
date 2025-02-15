@@ -37,20 +37,31 @@ import org.apache.velocity.exception.ParseErrorException;
 public class HookScriptWriter {
     private static final Set<PosixFilePermission> SCRIPT_PERMISSIONS =
             Set.of(PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.GROUP_EXECUTE);
+
+    private static final String SHELL = "#!/bin/sh";
+    private static final String SHELL_DEBUG = "#!/bin/sh\nset -x;";
+
     private static final String DEFAULT_HOOK_SCRIPT_TEMPLATE =
-            "#!/bin/sh\nargs=$(IFS=, ; echo \"$*\");\nexport PATH=${javaHome}:${mavenHome}:$PATH;\nmvn githooks:run \"-Dhook=${hookName}\" \"-Dhook.args=${args}\";";
+            "\nargs=$(IFS=, ; echo \"$*\");\nexport PATH=\"${javaBin}:${mavenBin}:$PATH\";\nexport JAVA_HOME=\"${javaHome}\";\nexport MAVEN_HOME=\"${mavenHome}\";\nmvn githooks:run \"-Dhook.name=${hookName}\" \"-Dhook.args=${args}\";";
+
     private final String template;
     private final String mavenHome;
     private final String javaHome;
 
-    protected HookScriptWriter(String hookTemplate, String mavenHome, String javaHome) {
-        this.template = Optional.ofNullable(hookTemplate).orElse(DEFAULT_HOOK_SCRIPT_TEMPLATE);
+    protected HookScriptWriter(
+            String hookTemplate, String mavenHome, String javaHome, boolean debug) {
+        this.template =
+                Optional.ofNullable(hookTemplate)
+                        .orElse((debug ? SHELL_DEBUG : SHELL) + DEFAULT_HOOK_SCRIPT_TEMPLATE);
         this.mavenHome = mavenHome;
         this.javaHome = javaHome;
     }
 
     public Path writeHook(HookType hookType, Path repositoryHooksPath) throws IOException {
         VelocityContext velocityContext = new VelocityContext();
+        velocityContext.put("javaBin", javaHome != null ? Path.of(javaHome).resolve("bin") : null);
+        velocityContext.put(
+                "mavenBin", mavenHome != null ? Path.of(mavenHome).resolve("bin") : null);
         velocityContext.put("mavenHome", mavenHome);
         velocityContext.put("javaHome", javaHome);
         velocityContext.put("hookName", hookType.name());

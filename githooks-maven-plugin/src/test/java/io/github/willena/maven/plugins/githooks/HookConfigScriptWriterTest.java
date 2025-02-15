@@ -31,7 +31,7 @@ class HookConfigScriptWriterTest {
     @Test
     void writeHook() throws IOException {
         HookScriptWriter writer =
-                new HookScriptWriter("bash -c echo ${mavenHome} ${javaHome}", "a", "b");
+                new HookScriptWriter("bash -c echo ${mavenHome} ${javaHome}", "a", "b", false);
         Path repo = Files.createTempDirectory(TARGET, "");
         Path r = writer.writeHook(HookType.COMMIT_MSG, repo);
         String content = Files.readString(r);
@@ -41,16 +41,23 @@ class HookConfigScriptWriterTest {
 
     @Test
     void writeHookDefault() throws IOException {
-        HookScriptWriter writer = new HookScriptWriter(null, "a", "b");
+        HookScriptWriter writer = new HookScriptWriter(null, "a", "b", false);
         Path repo = Files.createTempDirectory(TARGET, "");
         Path r = writer.writeHook(HookType.COMMIT_MSG, repo);
         String content = Files.readString(r);
         assertTrue(r.toString().contains(HookType.COMMIT_MSG.getFileName()));
+
         assertEquals(
                 "#!/bin/sh\n"
                         + "args=$(IFS=, ; echo \"$*\");\n"
-                        + "export PATH=b:a:$PATH;\n"
-                        + "mvn githooks:run \"-Dhook=COMMIT_MSG\" \"-Dhook.args=${args}\";",
+                        + "export PATH=\""
+                        + Path.of("b").resolve("bin")
+                        + ":"
+                        + Path.of("a").resolve("bin")
+                        + ":$PATH\";\n"
+                        + "export JAVA_HOME=\"b\";\n"
+                        + "export MAVEN_HOME=\"a\";\n"
+                        + "mvn githooks:run \"-Dhook.name=COMMIT_MSG\" \"-Dhook.args=${args}\";",
                 content);
     }
 }

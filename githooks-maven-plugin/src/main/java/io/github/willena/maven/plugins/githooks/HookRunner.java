@@ -143,7 +143,9 @@ public class HookRunner {
     }
 
     private List<String> computeArgs(RunConfig runConfig) {
-        List<String> allArgs = new LinkedList<>(runConfig.getArgs());
+        List<String> allArgs =
+                new LinkedList<>(
+                        Optional.ofNullable(runConfig.getArgs()).orElse(Collections.emptyList()));
         List<String> otherArgs =
                 Optional.ofNullable(config.getArgs()).orElse(Collections.emptyList());
         allArgs.addAll(otherArgs);
@@ -170,7 +172,8 @@ public class HookRunner {
 
             // Run the hook
             String[] args = computeArgs(runConfig).toArray(new String[0]);
-            hook.run(new HookContext(config.getMavenProject(), config.getMavenSession()), args);
+            hook.run(
+                    new HookContext(config.getMavenProject(), config.getMavenSession(), log), args);
         } catch (Exception e) {
             throw new MojoExecutionException("Error while running hook", e);
         }
@@ -192,7 +195,7 @@ public class HookRunner {
             int exitCode = process.waitFor();
             log.info("Exit code is " + exitCode);
             log.info(
-                    " The command was finished with the status"
+                    " The command was finished with the status "
                             + (exitCode == 0 ? "SUCCESS" : "ERROR"));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

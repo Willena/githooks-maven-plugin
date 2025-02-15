@@ -35,19 +35,19 @@ import org.apache.maven.project.MavenProject;
 @Mojo(name = "run")
 public class RunHooksMojo extends AbstractMojo {
 
-    @Parameter(name = "hook", required = true)
+    @Parameter(name = "hook", property = "hook.name", required = true)
     protected HookType hook;
 
-    @Parameter(name = "args")
+    @Parameter(name = "args", property = "hook.args")
     protected List<String> args;
 
-    @Parameter(name = "skipRuns")
+    @Parameter(name = "skipRuns", property = "hook.skipRuns")
     protected List<String> skipRuns;
 
     @Parameter(name = "hooks", required = true)
     protected List<HookConfig> hooks;
 
-    @Parameter(name = "skip")
+    @Parameter(name = "skip", property = "hook.skip")
     protected boolean skip;
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)

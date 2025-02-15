@@ -36,6 +36,9 @@ public class InstallHooksMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject mavenProject;
 
+    @Parameter(name = "debug", property = "hook.debug")
+    protected boolean debug;
+
     @Parameter(defaultValue = "${maven.home}", readonly = true, required = true)
     private String mavenHome;
 
@@ -51,7 +54,7 @@ public class InstallHooksMojo extends AbstractMojo {
     @Parameter(name = "hookScriptTemplate")
     private String hookScriptTemplate;
 
-    @Parameter(name = "skip")
+    @Parameter(name = "skip", property = "hook.skip")
     private boolean skip;
 
     public boolean isSkip() {
@@ -86,7 +89,7 @@ public class InstallHooksMojo extends AbstractMojo {
 
             getLog().info(String.format("Installing hooks into %s", hooksPaths));
             HookScriptWriter hookWriter =
-                    new HookScriptWriter(hookScriptTemplate, mavenHome, javaHome);
+                    new HookScriptWriter(hookScriptTemplate, mavenHome, javaHome, debug);
 
             for (HookConfig hookConfig : hooks) {
                 getLog().debug(String.format("Installing %s", hookConfig.getType().getFileName()));

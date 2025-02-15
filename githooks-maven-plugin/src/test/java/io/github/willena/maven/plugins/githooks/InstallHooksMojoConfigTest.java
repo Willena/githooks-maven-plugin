@@ -145,8 +145,10 @@ public class InstallHooksMojoConfigTest extends AbstractMojoTestCase {
         assertEquals(
                 "#!/bin/sh\n"
                         + "args=$(IFS=, ; echo \"$*\");\n"
-                        + "export PATH=${javaHome}:${mavenHome}:$PATH;\n"
-                        + "mvn githooks:run \"-Dhook=PRE_COMMIT\" \"-Dhook.args=${args}\";",
+                        + "export PATH=\"${javaBin}:${mavenBin}:$PATH\";\n"
+                        + "export JAVA_HOME=\"${javaHome}\";\n"
+                        + "export MAVEN_HOME=\"${mavenHome}\";\n"
+                        + "mvn githooks:run \"-Dhook.name=PRE_COMMIT\" \"-Dhook.args=${args}\";",
                 Files.readString(preCommitFile));
     }
 

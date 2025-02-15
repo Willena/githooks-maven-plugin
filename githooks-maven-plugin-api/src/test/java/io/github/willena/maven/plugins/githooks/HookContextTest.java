@@ -28,8 +28,9 @@ class HookContextTest {
     void getterSetter() {
         MavenProject project = new MavenProject();
 
-        HookContext ctx = new HookContext(project, null);
+        HookContext ctx = new HookContext(project, null, null);
         assertNull(ctx.getSession());
+        assertNull(ctx.getLogger());
         assertEquals(project, ctx.getProject());
     }
 }

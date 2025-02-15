@@ -17,15 +17,22 @@
 package io.github.willena.maven.plugins.githooks;
 
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
 public class HookContext {
-    MavenProject project;
-    MavenSession session;
+    private final MavenProject project;
+    private final MavenSession session;
+    private final Log logger;
 
-    public HookContext(MavenProject project, MavenSession session) {
+    public HookContext(MavenProject project, MavenSession session, Log logger) {
         this.project = project;
         this.session = session;
+        this.logger = logger;
+    }
+
+    public Log getLogger() {
+        return logger;
     }
 
     public MavenProject getProject() {
