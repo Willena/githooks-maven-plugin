@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -30,6 +31,10 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+/**
+ * Install configured git hooks into the current repository
+ * It installs a small script for each defined hook that will call the `run` goal
+ */
 @Mojo(name = "install", defaultPhase = LifecyclePhase.VALIDATE)
 public class InstallHooksMojo extends AbstractMojo {
 

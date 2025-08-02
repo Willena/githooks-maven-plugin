@@ -21,8 +21,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
@@ -32,15 +33,11 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.aether.RepositorySystemSession;
 import org.junit.jupiter.api.Test;
 
-class HookConfigRunnerTest {
+class HookRunnerTest {
 
     @Test
-    void runOnlyOneEnabled()
-            throws IOException,
-                    InvocationTargetException,
-                    InstantiationException,
-                    IllegalAccessException {
-        DemoMain.receivedArgs = null;
+    void runOnlyOneEnabled() {
+        BasicHook.receivedArgs = null;
         List<HookDefinitionConfig> definitions =
                 List.of(
                         new HookDefinitionConfig()
@@ -49,20 +46,20 @@ class HookConfigRunnerTest {
                                 .setRunConfig(
                                         new RunConfig()
                                                 .setArgs(List.of("A"))
-                                                .setClassName(DemoMain.class.getName())),
+                                                .setClassName(BasicHook.class.getSimpleName())),
                         new HookDefinitionConfig()
                                 .setName("second")
                                 .setEnabled(false)
                                 .setRunConfig(
                                         new RunConfig()
-                                                .setClassName(DemoMain.class.getSimpleName())
+                                                .setClassName(BasicHook.class.getSimpleName())
                                                 .setArgs(List.of("B"))),
                         new HookDefinitionConfig()
                                 .setName("thrid")
                                 .setEnabled(true)
                                 .setRunConfig(
                                         new RunConfig()
-                                                .setClassName(DemoMain.class.getSimpleName())
+                                                .setClassName(BasicHook.class.getSimpleName())
                                                 .setArgs(List.of("C"))));
 
         HookRunner runner =
@@ -71,58 +68,47 @@ class HookConfigRunnerTest {
                         new FakeLogger(),
                         new HookRunner.HookRunnerConfig.Builder()
                                 .skipRuns(List.of("thrid"))
+                                .runnableHooks(Map.of(BasicHook.class.getSimpleName(), new BasicHook()))
                                 .build());
 
         assertDoesNotThrow(() -> runner.run());
-        assertEquals(List.of("A"), Arrays.asList(DemoMain.receivedArgs));
+        assertEquals(List.of("A"), Arrays.asList(BasicHook.receivedArgs));
     }
 
     @Test
-    void runClass()
-            throws IOException,
-                    InvocationTargetException,
-                    InstantiationException,
-                    IllegalAccessException {
+    void runClass() {
         HookRunner runner =
                 new HookRunner(
                         List.of(),
                         new FakeLogger(),
-                        new HookRunner.HookRunnerConfig.Builder().build());
+                        new HookRunner.HookRunnerConfig.Builder().runnableHooks(Map.of(BasicHook.class.getSimpleName(), new BasicHook())).build());
         assertDoesNotThrow(
                 () ->
                         runner.runClass(
                                 new RunConfig()
-                                        .setClassName(DemoMain.class.getName())
+                                        .setClassName(BasicHook.class.getSimpleName())
                                         .setArgs(List.of("1", "Z"))));
-        assertEquals(List.of("1", "Z"), Arrays.asList(DemoMain.receivedArgs));
+        assertEquals(List.of("1", "Z"), Arrays.asList(BasicHook.receivedArgs));
     }
 
     @Test
-    void runClassFail()
-            throws IOException,
-                    InvocationTargetException,
-                    InstantiationException,
-                    IllegalAccessException {
+    void runClassFail() {
         HookRunner runner =
                 new HookRunner(
                         List.of(),
                         new FakeLogger(),
-                        new HookRunner.HookRunnerConfig.Builder().build());
+                        new HookRunner.HookRunnerConfig.Builder().runnableHooks(Map.of()).build());
         assertThrows(
                 MojoExecutionException.class,
                 () ->
                         runner.runClass(
                                 new RunConfig()
-                                        .setClassName("a.class.that.does.not.Exists")
+                                        .setClassName("NotExists")
                                         .setArgs(List.of("1", "Z"))));
     }
 
     @Test
-    void runCommand()
-            throws IOException,
-                    InvocationTargetException,
-                    InstantiationException,
-                    IllegalAccessException {
+    void runCommand() {
         HookRunner runner =
                 new HookRunner(
                         List.of(),
@@ -133,16 +119,27 @@ class HookConfigRunnerTest {
                 () ->
                         runner.runCommand(
                                 new RunConfig()
-                                        .setCommand(List.of("aCommandThatDoesNotExists"))
+                                        .setCommand("aCommandThatDoesNotExists")
                                         .setArgs(List.of("tt"))));
     }
 
     @Test
-    void runMojo()
-            throws IOException,
-                    InvocationTargetException,
-                    InstantiationException,
-                    IllegalAccessException {
+    void runCommandFromClasspath() {
+        HookRunner runner =
+                new HookRunner(
+                        List.of(),
+                        new FakeLogger(),
+                        new HookRunner.HookRunnerConfig.Builder().build());
+        assertThrows(MojoExecutionException.class,
+                () ->
+                        runner.runCommand(
+                                new RunConfig()
+                                        .setCommand("classpath:io/github/willena/maven/plugins/githooks/demoScript.sh")
+                                        .setArgs(List.of("this is a test", "args"))));
+    }
+
+    @Test
+    void runMojo() {
         HookRunner runner =
                 new HookRunner(
                         List.of(),
@@ -169,14 +166,10 @@ class HookConfigRunnerTest {
     }
 
     @Test
-    void runConfigInvalid()
-            throws IOException,
-                    InvocationTargetException,
-                    InstantiationException,
-                    IllegalAccessException {
+    void runConfigInvalid() {
         RunConfig config =
                 new RunConfig()
-                        .setCommand(Collections.emptyList())
+                        .setCommand("")
                         .setMojo(new MojoConfig())
                         .setClassName("");
         HookRunner runner =

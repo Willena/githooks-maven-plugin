@@ -42,7 +42,15 @@ public class HookScriptWriter {
     private static final String SHELL_DEBUG = "#!/bin/sh\nset -x;";
 
     private static final String DEFAULT_HOOK_SCRIPT_TEMPLATE =
-            "\nargs=$(IFS=, ; echo \"$*\");\nexport PATH=\"${javaBin}:${mavenBin}:$PATH\";\nexport JAVA_HOME=\"${javaHome}\";\nexport MAVEN_HOME=\"${mavenHome}\";\nmvn githooks:run \"-Dhook.name=${hookName}\" \"-Dhook.args=${args}\";";
+            "\n" +
+                    "args=$(IFS=, ; echo \"$*\");\n" +
+                    "export PATH=\"${javaBin}:${mavenBin}:$PATH\";\n" +
+                    "export JAVA_HOME=\"${javaHome}\";\n" +
+                    "export MAVEN_HOME=\"${mavenHome}\";\n" +
+                    "alias type='type -p';\n" + // Required to keep next line as a one-liner
+                    "shPath=$($(command -v where || command -v type) sh);\n"+ // where is windows specific but available allows to get the windows based path; Type is bash native.
+                    "unalias type;\n" + // But stay clean :)
+                    "mvn githooks:run \"-Dsh.path=${shPath}\" \"-Dhook.name=${hookName}\" \"-Dhook.args=${args}\";";
 
     private final String template;
     private final String mavenHome;

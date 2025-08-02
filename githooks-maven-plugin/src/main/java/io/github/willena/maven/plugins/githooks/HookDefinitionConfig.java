@@ -29,7 +29,7 @@ public class HookDefinitionConfig {
     @Parameter(name = "description")
     private String description;
 
-    @Parameter(name = "runConfig")
+    @Parameter(name = "runConfig", required = true)
     private RunConfig runConfig;
 
     @Parameter(name = "skipIf")

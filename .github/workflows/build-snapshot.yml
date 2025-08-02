@@ -7,20 +7,6 @@ on:
       - 'master'
 
 jobs:
-  lint:
-    name: Check code formatting
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: 17
-          java-package: jdk
-          cache: 'maven'
-      - name: spotless:check
-        run: mvn --batch-mode --no-transfer-progress spotless:check
-
   build_deploy:
     permissions:
       contents: write

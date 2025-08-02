@@ -16,24 +16,23 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import org.junit.jupiter.api.Test;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
-class RunConfigTest {
-    @Test
-    void getterAndSetter() {
-        RunConfig config = new RunConfig();
-        config.setCommand("bash");
-        config.setArgs(List.of("-c", "echo abc"));
-        config.setClassName(String.class.getName());
-        MojoConfig p = new MojoConfig();
-        config.setMojo(p);
+@Named("BasicHook")
+@Singleton
+public class BasicHook implements RunnableGitHook {
 
-        assertEquals(List.of("-c","echo abc"), config.getArgs());
-        assertEquals("bash", config.getCommand());
-        assertEquals(String.class.getName(), config.getClassName());
-        assertEquals(p, config.getMojo());
+    private static final Logger LOGGER = LoggerFactory.getLogger(BasicHook.class);
+
+    public static String[] receivedArgs;
+
+    @Override
+    public void run(HookContext context, String[] args) throws Exception {
+        LOGGER.debug("Hello args = {}", (Object[]) args);
+        BasicHook.receivedArgs = args;
     }
 }

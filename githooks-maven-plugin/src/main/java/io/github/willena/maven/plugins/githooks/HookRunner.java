@@ -16,15 +16,15 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -34,24 +34,20 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.twdata.maven.mojoexecutor.MojoExecutor;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 public class HookRunner {
+    public static final String CLASSPATH_PREFIX = "classpath:";
     private final List<HookDefinitionConfig> hooksToRun;
     private final Log log;
     private final HookRunnerConfig config;
     private final ExecutorService executor;
 
-    public HookRunner(List<HookDefinitionConfig> hooksToRun, Log log, HookRunnerConfig config)
-            throws IOException,
-                    InvocationTargetException,
-                    InstantiationException,
-                    IllegalAccessException {
+    public HookRunner(List<HookDefinitionConfig> hooksToRun, Log log, HookRunnerConfig config) {
         this.hooksToRun = hooksToRun;
         this.log = log;
         this.config = config;
         this.executor = Executors.newSingleThreadExecutor();
-        // TODO: Could not call this, because not performant. Need to improve and find a solution.
-        // this.hookClassRegistry = new RunnableHookRegistry();
-        // this.hookClassRegistry.findAllHooks();
     }
 
     public void run() throws MojoExecutionException {
@@ -91,9 +87,9 @@ public class HookRunner {
 
     public void run(RunConfig runConfig) throws MojoExecutionException {
         if (Stream.of(runConfig.getCommand(), runConfig.getMojo(), runConfig.getClassName())
-                        .filter(Objects::nonNull)
-                        .toList()
-                        .size()
+                .filter(Objects::nonNull)
+                .toList()
+                .size()
                 > 1) {
             throw new IllegalArgumentException(
                     "Command, Mojo and ClassName are mutually exclusive");
@@ -154,21 +150,12 @@ public class HookRunner {
 
     protected void runClass(RunConfig runConfig) throws MojoExecutionException {
         try {
-
-            // Get the hook
-            // TODO: Until the registry is able to automatically discover classes efficiently,
-            // disable registry lookup;
-            //  Replaced with manual lookup of a single class.
-
-            // RunnableGitHook hook = hookClassRegistry.get(runConfig.getClassName());
-            List<Map.Entry<String, RunnableGitHook>> hooks =
-                    RunnableHookRegistry.findHooksFromClass(runConfig.getClassName());
-            if (hooks.isEmpty()) {
-                throw new MojoExecutionException(
-                        "Could not find any code to run in provided class"
-                                + runConfig.getClassName());
-            }
-            RunnableGitHook hook = hooks.get(0).getValue();
+            RunnableGitHook hook = this.config.getRunnableHooks()
+                    .entrySet()
+                    .stream()
+                    .filter(e -> e.getKey().equals(runConfig.getClassName()) || e.getValue().getClass().getName().equals(runConfig.getClassName()))
+                    .findFirst().map(Map.Entry::getValue)
+                    .orElseThrow(() -> new IllegalStateException("Could not find requested hook name: " + runConfig.getClassName() + "; Found hooks: " + this.config.getRunnableHooks().toString()));
 
             // Run the hook
             String[] args = computeArgs(runConfig).toArray(new String[0]);
@@ -179,13 +166,40 @@ public class HookRunner {
         }
     }
 
+    private String getCommandAsPath(String command) throws MojoExecutionException {
+        if (command.startsWith(CLASSPATH_PREFIX)) {
+            try (InputStream resource = getClass().getClassLoader().getResourceAsStream(command.substring(CLASSPATH_PREFIX.length()))) {
+                Path realCommandPath = Files.createTempFile("", "");
+                if (resource == null) {
+                    throw new FileNotFoundException("Could not find " + command + " in classpath");
+                }
+                Files.copy(resource, realCommandPath, REPLACE_EXISTING);
+                boolean exec = realCommandPath.toFile().setExecutable(true);
+                log.debug("Make " + realCommandPath + " executable " + exec);
+                // Quick and dirty convert to git-bash style from windows
+                return "/" + realCommandPath.toAbsolutePath().toString()
+
+                        .replace(":\\", "/")
+                        .replace("\\", "/");
+            } catch (IOException e) {
+                throw new MojoExecutionException("Could not extract referenced command script " + command, e);
+            }
+        }
+        return null;
+    }
+
     protected void runCommand(RunConfig runConfig) throws MojoExecutionException {
-        List<String> allArgs = new LinkedList<>(runConfig.getCommand());
+
+        String copiedScript = this.getCommandAsPath(runConfig.getCommand());
+
+        List<String> allArgs = new LinkedList<>();
+        allArgs.add(Optional.ofNullable(copiedScript).orElse(runConfig.getCommand()));
         allArgs.addAll(computeArgs(runConfig));
 
         try {
-            log.info("Executing hook command `" + runConfig.getCommand() + "` ");
-            Process process = Runtime.getRuntime().exec(allArgs.toArray(new String[0]));
+            log.info("Executing hook command `" + allArgs + "` ");
+            List<String> aa = List.of(System.getProperty("sh.path", "/bin/sh"), "-c", String.join(" ", allArgs));
+            Process process = Runtime.getRuntime().exec(aa.toArray(new String[0]));
             executor.submit(
                     () ->
                             new BufferedReader(new InputStreamReader(process.getInputStream()))
@@ -197,11 +211,22 @@ public class HookRunner {
             log.info(
                     " The command was finished with the status "
                             + (exitCode == 0 ? "SUCCESS" : "ERROR"));
+            if (exitCode != 0) {
+                throw new MojoExecutionException("Command execution failed with code" + exitCode + "; Command was " + allArgs);
+            }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new MojoExecutionException("Could not run command: " + allArgs, e);
         } catch (IOException e) {
             throw new MojoExecutionException("Could not run command: " + allArgs, e);
+        } finally {
+            if (copiedScript != null) {
+                try {
+                    Files.deleteIfExists(Path.of(copiedScript));
+                } catch (IOException e) {
+                    log.warn("Could not remove temporary copy " + copiedScript + " for command " + runConfig.getCommand());
+                }
+            }
         }
     }
 
@@ -211,6 +236,7 @@ public class HookRunner {
         private final MavenProject mavenProject;
         private final MavenSession mavenSession;
         private final BuildPluginManager pluginManager;
+        private final Map<String, RunnableGitHook> runnableHooks;
 
         private HookRunnerConfig(Builder builder) {
             args = builder.args;
@@ -218,6 +244,7 @@ public class HookRunner {
             mavenProject = builder.mavenProject;
             mavenSession = builder.mavenSession;
             pluginManager = builder.pluginManager;
+            runnableHooks = builder.runnableHooks;
         }
 
         public List<String> getArgs() {
@@ -240,14 +267,20 @@ public class HookRunner {
             return pluginManager;
         }
 
+        public Map<String, RunnableGitHook> getRunnableHooks() {
+            return runnableHooks;
+        }
+
         public static final class Builder {
             private List<String> args;
             private List<String> skipRuns;
             private MavenProject mavenProject;
             private MavenSession mavenSession;
             private BuildPluginManager pluginManager;
+            private Map<String, RunnableGitHook> runnableHooks;
 
-            public Builder() {}
+            public Builder() {
+            }
 
             public Builder args(List<String> val) {
                 args = val;
@@ -274,9 +307,15 @@ public class HookRunner {
                 return this;
             }
 
+            public Builder runnableHooks(Map<String, RunnableGitHook> runnableHooks) {
+                this.runnableHooks = runnableHooks;
+                return this;
+            }
+
             public HookRunnerConfig build() {
                 return new HookRunnerConfig(this);
             }
+
         }
     }
 }

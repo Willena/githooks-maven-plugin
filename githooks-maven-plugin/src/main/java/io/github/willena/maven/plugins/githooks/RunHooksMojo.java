@@ -16,12 +16,11 @@
 
 package io.github.willena.maven.plugins.githooks;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.BuildPluginManager;
@@ -31,9 +30,15 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-/** Execute hook configured scripts and commands */
+import javax.inject.Inject;
+
+/**
+ * Run all defined hooks scripts for a git hook type
+ */
 @Mojo(name = "run")
 public class RunHooksMojo extends AbstractMojo {
+
+    private final Map<String, RunnableGitHook> runnableHooks;
 
     @Parameter(name = "hook", property = "hook.name", required = true)
     protected HookType hook;
@@ -56,7 +61,14 @@ public class RunHooksMojo extends AbstractMojo {
     @Parameter(defaultValue = "${session}", readonly = true, required = true)
     private MavenSession mavenSession;
 
-    @Component private BuildPluginManager pluginManager;
+    @Component
+    private BuildPluginManager pluginManager;
+
+    @Inject
+    public RunHooksMojo(Map<String, RunnableGitHook> availableCodeHooks) {
+        this.runnableHooks = availableCodeHooks;
+        getLog().debug("Registered hook classes and names: " + availableCodeHooks.toString());
+    }
 
     public void execute() throws MojoExecutionException {
         if (skip) {
@@ -73,24 +85,18 @@ public class RunHooksMojo extends AbstractMojo {
                         .map(e -> Map.entry(e.getType(), e.getHookDefinitions()))
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        try {
-            new HookRunner(
-                            hooksByType.getOrDefault(hook, Collections.emptyList()),
-                            getLog(),
-                            new HookRunner.HookRunnerConfig.Builder()
-                                    .skipRuns(skipRuns)
-                                    .args(args)
-                                    .pluginManager(pluginManager)
-                                    .mavenProject(mavenProject)
-                                    .mavenSession(mavenSession)
-                                    .build())
-                    .run();
-        } catch (IOException
-                | InvocationTargetException
-                | InstantiationException
-                | IllegalAccessException e) {
-            throw new MojoExecutionException("Could not run hook", e);
-        }
+        new HookRunner(
+                hooksByType.getOrDefault(hook, Collections.emptyList()),
+                getLog(),
+                new HookRunner.HookRunnerConfig.Builder()
+                        .skipRuns(skipRuns)
+                        .args(args)
+                        .pluginManager(pluginManager)
+                        .mavenProject(mavenProject)
+                        .mavenSession(mavenSession)
+                        .runnableHooks(this.runnableHooks)
+                        .build())
+                .run();
     }
 
     public boolean isSkip() {

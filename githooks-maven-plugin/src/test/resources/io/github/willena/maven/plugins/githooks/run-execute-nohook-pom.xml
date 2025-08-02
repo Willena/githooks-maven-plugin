@@ -49,7 +49,7 @@
                                 <hookDefinition>
                                     <name>mojo</name>
                                     <runConfig>
-                                        <className>io.github.willena.maven.plugins.githooks.DemoMain</className>
+                                        <className>io.github.willena.maven.plugins.githooks.BasicHook</className>
                                         <args>
                                             <arg>--v1</arg>
                                         </args>
@@ -58,7 +58,7 @@
                                 <hookDefinition>
                                     <name>other</name>
                                     <runConfig>
-                                        <className>io.github.willena.maven.plugins.githooks.DemoMain</className>
+                                        <className>io.github.willena.maven.plugins.githooks.BasicHook</className>
                                         <args>
                                             <arg>--v2</arg>
                                         </args>

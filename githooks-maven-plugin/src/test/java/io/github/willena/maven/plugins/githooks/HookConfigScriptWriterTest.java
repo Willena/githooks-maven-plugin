@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
 import org.junit.jupiter.api.Test;
 
 class HookConfigScriptWriterTest {
@@ -57,7 +58,10 @@ class HookConfigScriptWriterTest {
                         + ":$PATH\";\n"
                         + "export JAVA_HOME=\"b\";\n"
                         + "export MAVEN_HOME=\"a\";\n"
-                        + "mvn githooks:run \"-Dhook.name=COMMIT_MSG\" \"-Dhook.args=${args}\";",
+                        + "alias type='type -p';\n"
+                        + "shPath=$($(command -v where || command -v type) sh);\n"
+                        + "unalias type;\n"
+                        + "mvn githooks:run \"-Dsh.path=${shPath}\" \"-Dhook.name=COMMIT_MSG\" \"-Dhook.args=${args}\";",
                 content);
     }
 }

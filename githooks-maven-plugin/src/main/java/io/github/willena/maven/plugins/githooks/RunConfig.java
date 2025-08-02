@@ -25,7 +25,7 @@ public class RunConfig {
     private String className;
 
     @Parameter(name = "command")
-    private List<String> command;
+    private String command;
 
     @Parameter(name = "args")
     private List<String> args;
@@ -33,11 +33,13 @@ public class RunConfig {
     @Parameter(name = "mojo")
     private MojoConfig mojoConfig;
 
+    @Parameter(name = "script")
+
     public String getClassName() {
         return className;
     }
 
-    public List<String> getCommand() {
+    public String getCommand() {
         return command;
     }
 
@@ -50,7 +52,7 @@ public class RunConfig {
         return this;
     }
 
-    public RunConfig setCommand(List<String> command) {
+    public RunConfig setCommand(String command) {
         this.command = command;
         return this;
     }

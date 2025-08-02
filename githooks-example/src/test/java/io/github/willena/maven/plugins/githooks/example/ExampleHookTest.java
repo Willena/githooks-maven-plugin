@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package io.github.willena.maven.plugins.githooks;
+package io.github.willena.maven.plugins.githooks.example;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.github.willena.maven.plugins.githooks.RunnableGitHook;
+import org.junit.jupiter.api.Test;
 
-public class DemoMain {
+import static org.junit.jupiter.api.Assertions.*;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DemoMain.class);
-
-    public static String[] receivedArgs;
-
-    @GitHook(name = "hook-special-name")
-    public static void main(String[] args) {
-        LOGGER.debug("Hello args = {}", (Object[]) args);
-        DemoMain.receivedArgs = args;
+class ExampleHookTest {
+    @Test
+    void doesNotThrow(){
+        RunnableGitHook hook = new ExampleHook();
+        assertDoesNotThrow(() -> hook.run(null, new String[]{"a", "v"}));
     }
 }

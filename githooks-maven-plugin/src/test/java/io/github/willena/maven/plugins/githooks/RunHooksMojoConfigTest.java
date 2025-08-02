@@ -57,7 +57,7 @@ public class RunHooksMojoConfigTest extends AbstractMojoTestCase {
                                                                 new RunConfig()
                                                                         .setArgs(List.of("--v1"))
                                                                         .setClassName(
-                                                                                DemoMain.class
+                                                                                BasicHook.class
                                                                                         .getName())),
                                                 new HookDefinitionConfig()
                                                         .setName("other")
@@ -65,7 +65,7 @@ public class RunHooksMojoConfigTest extends AbstractMojoTestCase {
                                                                 new RunConfig()
                                                                         .setArgs(List.of("--v2"))
                                                                         .setClassName(
-                                                                                DemoMain.class
+                                                                                BasicHook.class
                                                                                         .getName())))));
 
         assertEquals(hookConfigs, mojo.getHooks());
@@ -83,9 +83,9 @@ public class RunHooksMojoConfigTest extends AbstractMojoTestCase {
         RunHooksMojo mojo = (RunHooksMojo) lookupConfiguredMojo(project, "run");
         assertNotNull(mojo);
 
-        DemoMain.receivedArgs = null;
+        BasicHook.receivedArgs = null;
         assertDoesNotThrow(mojo::execute);
-        assertNull(DemoMain.receivedArgs);
+        assertNull(BasicHook.receivedArgs);
     }
 
     public void testNoHookExecution() throws Exception {
@@ -107,10 +107,10 @@ public class RunHooksMojoConfigTest extends AbstractMojoTestCase {
         RunHooksMojo mojo = (RunHooksMojo) lookupConfiguredMojo(project, "run");
         assertNotNull(mojo);
 
-        DemoMain.receivedArgs = null;
+        BasicHook.receivedArgs = null;
         assertDoesNotThrow(mojo::execute);
 
-        assertEquals(List.of("--v1", "toto"), Arrays.asList(DemoMain.receivedArgs));
+        assertEquals(List.of("--v1", "toto"), Arrays.asList(BasicHook.receivedArgs));
     }
 
     protected Path createNewProject(Path pomToTest) throws IOException, GitAPIException {

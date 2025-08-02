@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.model.Plugin;
@@ -84,10 +85,11 @@ public class InstallHooksMojoConfigTest extends AbstractMojoTestCase {
                                                         .setRunConfig(
                                                                 new RunConfig()
                                                                         .setCommand(
-                                                                                List.of(
-                                                                                        "value",
-                                                                                        "value",
-                                                                                        "value"))),
+
+                                                                                "value")
+                                                                        .setArgs(List.of(
+                                                                                "value",
+                                                                                "value"))),
                                                 new HookDefinitionConfig()
                                                         .setName("other")
                                                         .setEnabled(false)
@@ -148,7 +150,10 @@ public class InstallHooksMojoConfigTest extends AbstractMojoTestCase {
                         + "export PATH=\"${javaBin}:${mavenBin}:$PATH\";\n"
                         + "export JAVA_HOME=\"${javaHome}\";\n"
                         + "export MAVEN_HOME=\"${mavenHome}\";\n"
-                        + "mvn githooks:run \"-Dhook.name=PRE_COMMIT\" \"-Dhook.args=${args}\";",
+                        + "alias type='type -p';\n"
+                        + "shPath=$($(command -v where || command -v type) sh);\n"
+                        + "unalias type;\n"
+                        + "mvn githooks:run \"-Dsh.path=${shPath}\" \"-Dhook.name=PRE_COMMIT\" \"-Dhook.args=${args}\";",
                 Files.readString(preCommitFile));
     }
 

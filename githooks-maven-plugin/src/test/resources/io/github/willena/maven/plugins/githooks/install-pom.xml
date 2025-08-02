@@ -70,11 +70,11 @@
                                     <name>name</name>
                                     <description>This is a simple hook</description>
                                     <runConfig>
-                                        <command>
-                                            <part>value</part>
-                                            <part>value</part>
-                                            <part>value</part>
-                                        </command>
+                                        <command>value</command>
+                                        <args>
+                                            <arg>value</arg>
+                                            <arg>value</arg>
+                                        </args>
                                     </runConfig>
                                 </hookDefinition>
                                 <hookDefinition>
