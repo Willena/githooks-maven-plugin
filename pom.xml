@@ -22,7 +22,7 @@
 
     <groupId>io.github.willena.maven.plugins</groupId>
     <artifactId>githooks-maven-plugin-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <name>Git Hooks Maven plugin - parent</name>
