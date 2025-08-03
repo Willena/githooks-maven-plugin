@@ -21,7 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.github.willena.maven.plugins</groupId>
+        <groupId>io.github.willena.maven</groupId>
         <artifactId>githooks-maven-plugin-parent</artifactId>
         <version>1.0.0</version>
     </parent>
@@ -31,7 +31,6 @@
 
     <name>Git Hooks Maven plugin</name>
     <description>Install, configure, manage and compose hookConfigs for your java project</description>
-    <url>https://github.com/Willena/githooks-maven-plugin</url>
 
         <dependencies>
             <dependency>

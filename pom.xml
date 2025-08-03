@@ -20,7 +20,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.github.willena.maven.plugins</groupId>
+    <groupId>io.github.willena.maven</groupId>
     <artifactId>githooks-maven-plugin-parent</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
@@ -32,7 +32,7 @@
     <modules>
         <module>githooks-maven-plugin-api</module>
         <module>githooks-maven-plugin</module>
-        <module>githooks-example</module>
+        <module>githooks-maven-plugin-example</module>
     </modules>
 
     <scm>
