@@ -73,7 +73,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>io.github.willena.maven.plugins</groupId>
+                <groupId>io.github.willena.maven</groupId>
                 <artifactId>githooks-maven-plugin-api</artifactId>
                 <version>${project.version}</version>
             </dependency>

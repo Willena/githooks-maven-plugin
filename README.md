@@ -18,7 +18,7 @@ Add the following plugin definition to your maven project
 ```xml
 
 <plugin>
-    <groupId>io.github.willena.maven.plugins</groupId>
+    <groupId>io.github.willena.maven</groupId>
     <artifactId>githooks-maven-plugin</artifactId>
     <version>${plugin-version}</version>
 </plugin>
